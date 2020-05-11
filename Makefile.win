@@ -1,0 +1,80 @@
+# Set by elixir_make
+# ERL_EI_INCLUDE_DIR=
+
+LIBSODIUM_INCLUDE_DIR=.\c_src\libsodium\include
+LIBSODIUM_LIB_PATH=.\c_src\libsodium\x64\Release\v142\static\libsodium.lib
+
+TARGET=.\src\crypto
+
+# Downloading it automatically is probably not a good solution.
+
+# Download url for libsodium and signature
+LIBSODIUM_URL=https://download.libsodium.org/libsodium/releases/libsodium-1.0.18-stable-msvc.zip
+LIBSODIUM_MINISIG_URL=$(LIBSODIUM_URL).minisig
+
+# Destination of the downloads
+LIBSODIUM_ZIP=.\c_src\libsodium.zip
+LIBSODIUM_MINISIG=$(LIBSODIUM_ZIP).minisig
+
+# Main include file to depend on
+LIBSODIUM_INCLUDE=$(LIBSODIUM_INCLUDE_DIR)\sodium.h
+
+# Download url for Minisign
+MINISIGN_URL=https://github.com/jedisct1/minisign/releases/download/0.8/minisign-win32.zip
+MINISIGN_ZIP=.\c_src\minisign.zip
+MINISIGN=.\c_src\minisign.exe
+
+LIBSODIUM_KEY=RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3
+
+all: $(TARGET).dll
+
+clean:
+	del $(TARGET).dll
+	del $(TARGET).exp
+	del $(TARGET).lib
+# CL does not put this into the output directory, yes
+	del .\crypto.obj
+
+# If everything is downloaded, actually compile
+$(TARGET).dll: $(LIBSODIUM_INCLUDE) $(LIBSODIUM_LIB_PATH) $(TARGET).c
+	CL -I "$(ERL_EI_INCLUDE_DIR)" -I "$(LIBSODIUM_INCLUDE_DIR)" "$(TARGET).c" -LD -Fe$(TARGET).dll -link "$(LIBSODIUM_LIB_PATH)"
+
+# Verify libsodium's signature, then extract it
+$(LIBSODIUM_INCLUDE): $(LIBSODIUM_ZIP) $(LIBSODIUM_MINISIG) $(MINISIGN)
+$(LIBSODIUM_LIB_PATH): $(LIBSODIUM_ZIP) $(LIBSODIUM_MINISIG) $(MINISIGN)
+	$(MINISIGN) -V -P $(LIBSODIUM_KEY) -m $(LIBSODIUM_ZIP)
+	cd c_src
+# Only extract what we need
+	tar -xf .\libsodium.zip libsodium/include libsodium/x64/Release/v142/static
+	cd ..
+# Update the timestamps so nmake does not rebuild this target every time
+	copy /B $(LIBSODIUM_INCLUDE)+,,$(LIBSODIUM_INCLUDE)
+	copy /B $(LIBSODIUM_LIB_PATH)+,,$(LIBSODIUM_LIB_PATH)
+# Cleanup temporary files
+	del $(LIBSODIUM_ZIP)
+	del $(LIBSODIUM_MINISIG)
+	del $(MINISIGN)
+
+# Extract downloaded minisign
+$(MINISIGN): $(MINISIGN_ZIP)
+	cd .\c_src
+	tar -xf .\minisign.zip
+	cd ..
+# Update the timestamp so nmake does not rebuild this target every time
+	copy /B $(MINISIGN)+,,$(MINISIGN)
+	del $(MINISIGN_ZIP)
+
+# Download minisign zip
+$(MINISIGN_ZIP):
+	echo Downloading Minisign
+	curl -L "$(MINISIGN_URL)" -o "$(MINISIGN_ZIP)"
+
+# Download libsodium zip
+$(LIBSODIUM_ZIP):
+	echo Downloading libsodium
+	curl -L "$(LIBSODIUM_URL)" -o "$(LIBSODIUM_ZIP)"
+
+# Download libsodium's signature
+$(LIBSODIUM_MINISIG):
+	echo Downloading libsodium's signature
+	curl -L "$(LIBSODIUM_MINISIG_URL)" -o "$(LIBSODIUM_MINISIG)"
