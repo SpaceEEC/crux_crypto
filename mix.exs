@@ -31,7 +31,7 @@ defmodule Crux.Crypto.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps() do
     [
-      # Since using a compiler from the local project is not through through by mix...
+      # Since using a compiler from the local project is not thought through by mix...
       {:elixir_make, "~> 0.4", runtime: false}
     ]
   end

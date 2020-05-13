@@ -8,22 +8,24 @@ TARGET=.\src\crypto
 
 # Downloading it automatically is probably not a good solution.
 
-# Download url for libsodium and signature
+
+# Download urls
 LIBSODIUM_URL=https://download.libsodium.org/libsodium/releases/libsodium-1.0.18-stable-msvc.zip
 LIBSODIUM_MINISIG_URL=$(LIBSODIUM_URL).minisig
+MINISIGN_URL=https://github.com/jedisct1/minisign/releases/download/0.8/minisign-win32.zip
 
 # Destination of the downloads
 LIBSODIUM_ZIP=.\c_src\libsodium.zip
 LIBSODIUM_MINISIG=$(LIBSODIUM_ZIP).minisig
+MINISIGN_ZIP=.\c_src\minisign.zip
+MINISIGN=.\c_src\minisign.exe
 
 # Main include file to depend on
 LIBSODIUM_INCLUDE=$(LIBSODIUM_INCLUDE_DIR)\sodium.h
 
-# Download url for Minisign
-MINISIGN_URL=https://github.com/jedisct1/minisign/releases/download/0.8/minisign-win32.zip
-MINISIGN_ZIP=.\c_src\minisign.zip
-MINISIGN=.\c_src\minisign.exe
 
+# https://doc.libsodium.org/installation
+# Integrity checking
 LIBSODIUM_KEY=RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3
 
 all: $(TARGET).dll
@@ -32,7 +34,7 @@ clean:
 	del $(TARGET).dll
 	del $(TARGET).exp
 	del $(TARGET).lib
-# CL does not put this into the output directory, yes
+# CL does not put this into the working directory, yes
 	del .\crypto.obj
 
 # If everything is downloaded, actually compile

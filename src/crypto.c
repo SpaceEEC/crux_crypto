@@ -6,8 +6,8 @@
 #include <sodium.h>
 
 static int load(ErlNifEnv *caller_env, void **priv_data, ERL_NIF_TERM load_info) {
-  // Initial call should return 0, if successful
-  if (sodium_init() <0) {
+  // Initial call returns 0, if successful
+  if (sodium_init() < 0) {
     return 1;
   }
   return 0;
@@ -15,13 +15,17 @@ static int load(ErlNifEnv *caller_env, void **priv_data, ERL_NIF_TERM load_info)
 
 static int upgrade(ErlNifEnv *caller_env, void **priv_data, void **old_priv_data, ERL_NIF_TERM load_info) {
   // Further calls return 1
-  if (sodium_init() <0) {
+  if (sodium_init() < 0) {
     return 1;
   }
   return 0;
 }
 
-static ERL_NIF_TERM raise_badarg(ErlNifEnv *env, const char const* atom_name) {
+/**
+ * Creates a bad arg exception with `atom_name` as reason.
+ * The returned term should be returned to the nif caller.
+ */
+static ERL_NIF_TERM raise_badarg(ErlNifEnv *env, const char const *atom_name) {
     return enif_raise_exception(env, enif_make_tuple2(env, enif_make_atom(env, "badarg"), enif_make_atom(env, atom_name)));
 }
 
