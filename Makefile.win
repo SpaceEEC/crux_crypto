@@ -31,11 +31,17 @@ LIBSODIUM_KEY=RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3
 all: $(TARGET).dll
 
 clean:
+# Generated files
 	del $(TARGET).dll
 	del $(TARGET).exp
 	del $(TARGET).lib
 # CL does not put this into the working directory, yes
 	del .\crypto.obj
+# Downloaded files
+	del $(LIBSODIUM_ZIP)
+	del $(LIBSODIUM_MINISIG)
+	del $(MINISIGN_ZIP)
+	del $(MINISIGN)
 
 # If everything is downloaded, actually compile
 $(TARGET).dll: $(LIBSODIUM_INCLUDE) $(LIBSODIUM_LIB_PATH) $(TARGET).c
@@ -52,10 +58,6 @@ $(LIBSODIUM_LIB_PATH): $(LIBSODIUM_ZIP) $(LIBSODIUM_MINISIG) $(MINISIGN)
 # Update the timestamps so nmake does not rebuild this target every time
 	copy /B $(LIBSODIUM_INCLUDE)+,,$(LIBSODIUM_INCLUDE)
 	copy /B $(LIBSODIUM_LIB_PATH)+,,$(LIBSODIUM_LIB_PATH)
-# Cleanup temporary files
-	del $(LIBSODIUM_ZIP)
-	del $(LIBSODIUM_MINISIG)
-	del $(MINISIGN)
 
 # Extract downloaded minisign
 $(MINISIGN): $(MINISIGN_ZIP)
@@ -64,7 +66,6 @@ $(MINISIGN): $(MINISIGN_ZIP)
 	cd ..
 # Update the timestamp so nmake does not rebuild this target every time
 	copy /B $(MINISIGN)+,,$(MINISIGN)
-	del $(MINISIGN_ZIP)
 
 # Download minisign zip
 $(MINISIGN_ZIP):
