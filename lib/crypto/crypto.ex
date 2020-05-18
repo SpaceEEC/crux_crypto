@@ -7,9 +7,9 @@ defmodule Crux.Crypto do
 
   @doc false
   def load_nifs() do
-    "#{__DIR__}/../../src/crypto"
-    |> Path.expand()
-    |> String.to_charlist()
+    :crux_crypto
+    |> :code.priv_dir()
+    |> :filename.join('crypto')
     |> :erlang.load_nif(0)
   end
 

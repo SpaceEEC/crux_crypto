@@ -25,15 +25,15 @@ crux_crypto-*.tar
 # Ignore everything from elixir_ls, a vs code addon
 /.elixir_ls
 
-# Ignore c_src's contents,
+# Ignore certain directories' contents
 /c_src/*
-# but keep the directory itself.
+/priv/*
+/src/*
+
+# but keep the directories themselves.
 !/c_src/.keep
+!/priv/.keep
+!/src/.keep
 
 # cl puts the object file here for some reason.
 crypto.obj
-
-# Ignore build artifacts,
-/src/*
-# but keep the source file.
-!/src/crypto.c

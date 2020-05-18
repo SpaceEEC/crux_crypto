@@ -4,7 +4,8 @@
 LIBSODIUM_INCLUDE_DIR=.\c_src\libsodium\include
 LIBSODIUM_LIB_PATH=.\c_src\libsodium\x64\Release\v142\static\libsodium.lib
 
-TARGET=.\src\crypto
+SOURCE=.\src\crypto.c
+TARGET=.\priv\crypto
 
 # Downloading it automatically is probably not a good solution.
 
@@ -33,10 +34,6 @@ all: $(TARGET).dll
 clean:
 # Generated files
 	del $(TARGET).dll
-	del $(TARGET).exp
-	del $(TARGET).lib
-# CL does not put this into the working directory, yes
-	del .\crypto.obj
 # Downloaded files
 	del $(LIBSODIUM_ZIP)
 	del $(LIBSODIUM_MINISIG)
@@ -44,8 +41,12 @@ clean:
 	del $(MINISIGN)
 
 # If everything is downloaded, actually compile
-$(TARGET).dll: $(LIBSODIUM_INCLUDE) $(LIBSODIUM_LIB_PATH) $(TARGET).c
-	CL -I "$(ERL_EI_INCLUDE_DIR)" -I "$(LIBSODIUM_INCLUDE_DIR)" "$(TARGET).c" -LD -Fe$(TARGET).dll -link "$(LIBSODIUM_LIB_PATH)"
+$(TARGET).dll: $(LIBSODIUM_INCLUDE) $(LIBSODIUM_LIB_PATH) $(SOURCE)
+	CL -I "$(ERL_EI_INCLUDE_DIR)" -I "$(LIBSODIUM_INCLUDE_DIR)" "$(SOURCE)" -LD -Fe$(TARGET).dll -link "$(LIBSODIUM_LIB_PATH)"
+	del $(TARGET).exp
+	del $(TARGET).lib
+# CL does not put this into the target directory, yes
+	del .\crypto.obj
 
 # Verify libsodium's signature, then extract it
 $(LIBSODIUM_INCLUDE): $(LIBSODIUM_ZIP) $(LIBSODIUM_MINISIG) $(MINISIGN)
