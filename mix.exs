@@ -9,6 +9,7 @@ defmodule Crux.Crypto.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       compilers: [:elixir_make] ++ Mix.compilers(),
+      make_clean: ["clean"],
       files: [
         "lib",
         "LICENSE",
@@ -32,7 +33,7 @@ defmodule Crux.Crypto.MixProject do
   defp deps() do
     [
       # Since using a compiler from the local project is not thought through by mix...
-      {:elixir_make, "~> 0.4", runtime: false}
+      {:elixir_make, "~> 0.6", runtime: false}
     ]
   end
 end
