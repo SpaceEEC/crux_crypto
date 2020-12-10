@@ -1,4 +1,4 @@
-# Crux.Crypto ![](https://github.com/SpaceEEC/crux_crypto/workflows/Tests/badge.svg?event=push&branch=master)
+# Crux.Crypto [![](https://github.com/SpaceEEC/crux_crypto/workflows/Tests/badge.svg?event=push&branch=master)](https://github.com/SpaceEEC/crux_crypto/actions)
 
 Crux.Crypto wraps a very small subset of [libsodium](https://github.com/jedisct1/libsodium) using [erl_nif](http://erlang.org/doc/man/erl_nif.html)s.
 
