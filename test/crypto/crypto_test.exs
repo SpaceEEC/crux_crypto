@@ -227,4 +227,94 @@ defmodule Crux.CryptoTest do
       assert data === expected
     end
   end
+
+  describe "crypto_sign_verify_detached/2" do
+    test "invalid message type raises" do
+      assert_raise ArgumentError, ~r/:message/, fn ->
+        Crux.Crypto.crypto_sign_verify_detached(
+          nil,
+          String.duplicate("s", 64),
+          String.duplicate("k", 32)
+        )
+      end
+    end
+
+    test "invalid signature type raises" do
+      assert_raise ArgumentError, ~r/:signature/, fn ->
+        Crux.Crypto.crypto_sign_verify_detached(
+          "messsage",
+          nil,
+          String.duplicate("k", 32)
+        )
+      end
+    end
+
+    test "invalid signature length raises" do
+      assert_raise ArgumentError, ~r/:signaturebytes/, fn ->
+        Crux.Crypto.crypto_sign_verify_detached(
+          "messsage",
+          "signature_too_short",
+          String.duplicate("k", 32)
+        )
+      end
+    end
+
+    test "invalid public_key type raises" do
+      assert_raise ArgumentError, ~r/:public_key/, fn ->
+        Crux.Crypto.crypto_sign_verify_detached(
+          "messsage",
+          String.duplicate("s", 64),
+          nil
+        )
+      end
+    end
+
+    test "invalid public_key length raises" do
+      assert_raise ArgumentError, ~r/:public_keybytes/, fn ->
+        Crux.Crypto.crypto_sign_verify_detached(
+          "messsage",
+          String.duplicate("s", 64),
+          "key_too_short"
+        )
+      end
+    end
+
+    test "fails with edited message" do
+      message = <<105, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100>>
+
+      signature =
+        <<106, 87, 37, 244, 1, 119, 163, 161, 58, 187, 183, 235, 99, 74, 71, 183, 210, 106, 71,
+          176, 135, 121, 1, 157, 89, 202, 101, 197, 126, 0, 38, 237, 127, 144, 107, 180, 155, 160,
+          117, 161, 66, 246, 84, 177, 117, 177, 98, 170, 251, 179, 232, 246, 200, 231, 240, 93,
+          75, 132, 14, 81, 32, 208, 18, 12>>
+
+      public_key =
+        <<6, 70, 18, 121, 182, 147, 145, 131, 189, 89, 217, 8, 248, 48, 50, 178, 234, 81, 113, 39,
+          107, 33, 21, 74, 93, 91, 232, 41, 97, 13, 78, 195>>
+
+      assert :error = Crux.Crypto.crypto_sign_verify_detached(message, signature, public_key)
+    end
+
+    test "works for matching message, signature, and public key" do
+      message = <<104, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100>>
+
+      signature =
+        <<106, 87, 37, 244, 1, 119, 163, 161, 58, 187, 183, 235, 99, 74, 71, 183, 210, 106, 71,
+          176, 135, 121, 1, 157, 89, 202, 101, 197, 126, 0, 38, 237, 127, 144, 107, 180, 155, 160,
+          117, 161, 66, 246, 84, 177, 117, 177, 98, 170, 251, 179, 232, 246, 200, 231, 240, 93,
+          75, 132, 14, 81, 32, 208, 18, 12>>
+
+      # secret_key =
+      #   <<107, 112, 201, 110, 113, 98, 182, 68, 44, 69, 225, 197, 46, 8, 104, 221, 182, 64, 159,
+      #     154, 35, 199, 32, 42, 99, 27, 226, 142, 88, 34, 10, 243, 6, 70, 18, 121, 182, 147, 145,
+      #     131, 189, 89, 217, 8, 248, 48, 50, 178, 234, 81, 113, 39, 107, 33, 21, 74, 93, 91, 232,
+      #     41, 97, 13, 78, 195>>
+
+      public_key =
+        <<6, 70, 18, 121, 182, 147, 145, 131, 189, 89, 217, 8, 248, 48, 50, 178, 234, 81, 113, 39,
+          107, 33, 21, 74, 93, 91, 232, 41, 97, 13, 78, 195>>
+
+      assert :ok = Crux.Crypto.crypto_sign_verify_detached(message, signature, public_key)
+    end
+  end
 end

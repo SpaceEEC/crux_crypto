@@ -130,10 +130,45 @@ static ERL_NIF_TERM crux_crypto_secretbox_open_easy(ErlNifEnv *env, int argc, co
   return enif_make_tuple2(env, enif_make_atom(env, "ok"), decrypted_message);
 }
 
+/**
+ * argv[0] - message
+ * argv[1] - signature
+ * argv[2] - public key
+ * returns whether the signature was successfully verified
+ */ 
+static ERL_NIF_TERM crux_crypto_sign_verify_detached(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
+  ErlNifBinary message;
+  ErlNifBinary signature;
+  ErlNifBinary public_key;
+
+  if (!enif_inspect_binary(env, argv[0], &message)) {
+    return raise_badarg(env, "message");
+  }
+  if (!enif_inspect_binary(env, argv[1], &signature)) {
+    return raise_badarg(env, "signature");
+  }
+  if (signature.size != crypto_sign_BYTES) {
+    return raise_badarg(env, "signaturebytes");
+  }
+  if (!enif_inspect_binary(env, argv[2], &public_key)) {
+    return raise_badarg(env, "public_key");
+  }
+  if (public_key.size != crypto_sign_PUBLICKEYBYTES) {
+    return raise_badarg(env, "public_keybytes");
+  }
+
+  if (crypto_sign_verify_detached(signature.data, message.data, message.size, public_key.data)) {
+    return enif_make_atom(env, "error");
+  }
+
+  return enif_make_atom(env, "ok");
+}
+
 static ErlNifFunc nifs[] = {
   {"randombytes_buf", 1, crux_randombytes_buf},
   {"crypto_secretbox_easy", 3, crux_crypto_secretbox_easy},
-  {"crypto_secretbox_open_easy", 3, crux_crypto_secretbox_open_easy}
+  {"crypto_secretbox_open_easy", 3, crux_crypto_secretbox_open_easy},
+  {"crypto_sign_verify_detached", 3, crux_crypto_sign_verify_detached}
 };
 
 ERL_NIF_INIT(Elixir.Crux.Crypto, nifs, load, NULL, upgrade, NULL)
