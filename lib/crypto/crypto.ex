@@ -41,7 +41,11 @@ defmodule Crux.Crypto do
   @doc """
   Verifies the signature of a message using a public key.
   """
-  @spec crypto_sign_verify_detached(message :: binary(), signature :: binary(), public_key :: binary()) :: :ok | :error
+  @spec crypto_sign_verify_detached(
+          message :: binary(),
+          signature :: binary(),
+          public_key :: binary()
+        ) :: :ok | :error
   def crypto_sign_verify_detached(_message, _signature, _public_key) do
     :erlang.nif_error(:nif_not_loaded)
   end
